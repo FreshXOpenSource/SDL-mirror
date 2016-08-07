@@ -416,6 +416,7 @@ KMSDRM_VideoInit(_THIS)
                 continue;
             }
             *cur_mode = ddata->saved_crtc->mode;
+	    SDL_LogDebug(SDL_LOG_CATEGORY_VIDEO, "Mode details : %s = %dx%d@%d", cur_mode->name, cur_mode->hdisplay, cur_mode->vdisplay, cur_mode->vrefresh);
 
             SDL_zero(current_mode);
             current_mode.w = cur_mode->hdisplay;
@@ -430,9 +431,9 @@ KMSDRM_VideoInit(_THIS)
             display.driverdata = ddata;
 
             ret = SDL_AddVideoDisplay(&display);
-            if (ret < 0) {
-                goto cleanup;
-            } else {
+            //if (ret < 0) {
+            //    goto cleanup;
+            //} else {
                 /* On success, the display index is returned - clear it */
                 ret = 0;
 
@@ -441,7 +442,7 @@ KMSDRM_VideoInit(_THIS)
                 vdata->disp_list = ddata;
                 ddata = NULL;
                 cur_mode = NULL;
-            }
+            //}
         }
 
         KMSDRM_drmModeFreeConnector(connector);
@@ -563,6 +564,7 @@ KMSDRM_GetDisplayModes(_THIS, SDL_VideoDisplay * display)
 
         *mdata = connector->modes[i];
 
+	SDL_LogDebug(SDL_LOG_CATEGORY_VIDEO, "Adding display mode %dx%d@%d",mdata->hdisplay, mdata->vdisplay, mdata->vrefresh);	
         SDL_zero(mode);
         mode.w = mdata->hdisplay;
         mode.h = mdata->vdisplay;
@@ -637,7 +639,7 @@ KMSDRM_CreateWindow(_THIS, SDL_Window * window)
     } else {
         /* Regular fullscreen - mode will be set later by SDL_UpdateFullscreenMode */
         if (!SDL_GetWindowDisplayMode(window, &mode)) {
-            SDL_SetError("Couldn't find display mode match");
+            SDL_SetError("Couldn't find display mode match for %dx%d",window->w,window->h);
             goto error;
         }
         window->w = mode.w;
