@@ -314,7 +314,11 @@ KMSDRM_VideoInit(_THIS)
         goto cleanup;
     }
 
-    for (i = 0; i < resources->count_encoders; i++) {
+    if(connector->encoder_id) {
+        encoder = KMSDRM_drmModeGetEncoder(vdata->drm_fd, connector->encoder_id);
+        SDL_LogDebug(SDL_LOG_CATEGORY_VIDEO, "Using current encoder %d.", encoder->encoder_id);
+    } else {
+      for (i = 0; i < resources->count_encoders; i++) {
         encoder = KMSDRM_drmModeGetEncoder(vdata->drm_fd, resources->encoders[i]);
 
         if (encoder == NULL)
@@ -327,12 +331,12 @@ KMSDRM_VideoInit(_THIS)
         }
 
         KMSDRM_drmModeFreeEncoder(encoder);
-        encoder = NULL
-    }
-
-    if (i == resources->count_encoders) {
+        encoder = NULL;
+      }
+      if (i == resources->count_encoders) {
         ret = SDL_SetError("No connected encoder found.");
         goto cleanup;
+      }
     }
 
     vdata->saved_crtc = KMSDRM_drmModeGetCrtc(vdata->drm_fd, encoder->crtc_id);
