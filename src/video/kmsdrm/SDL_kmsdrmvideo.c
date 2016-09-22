@@ -327,6 +327,7 @@ KMSDRM_VideoInit(_THIS)
         }
 
         KMSDRM_drmModeFreeEncoder(encoder);
+        encoder = NULL
     }
 
     if (i == resources->count_encoders) {
